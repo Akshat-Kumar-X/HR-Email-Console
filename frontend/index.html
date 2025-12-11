@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HR Email Console</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg-main: #05070a;
+      --bg-panel: #0d1117;
+      --bg-panel-soft: #111827;
+      --accent: #1f6feb;
+      --accent-soft: #265dbe;
+      --accent-muted: #243b53;
+      --border-subtle: #1f2933;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --danger: #ef4444;
+      --radius-lg: 10px;
+      --radius-md: 6px;
+      --transition-fast: 0.16s ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #0b1220 0, #020617 55%, #000 100%);
+      color: var(--text-main);
+    }
+
+    /* Top bar */
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: #020617;
+      border-bottom: 1px solid #111827;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .top-bar-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .top-bar-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Layout */
+
+    .page {
+      max-width: 1200px;
+      margin: 22px auto 40px;
+      padding: 0 16px;
+    }
+
+    .card {
+      background: linear-gradient(135deg, var(--bg-panel) 0, #020617 100%);
+      border-radius: 16px;
+      border: 1px solid #111827;
+      padding: 18px 20px;
+      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.6);
+    }
+
+    .card + .card {
+      margin-top: 18px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title-pill {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--accent-muted);
+      color: #c7d2fe;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Tabs */
+
+    .tabs {
+      display: inline-flex;
+      background: #020617;
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid #111827;
+      margin-bottom: 18px;
+    }
+
+    .tab {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      font-size: 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background var(--transition-fast), color var(--transition-fast);
+    }
+
+    .tab.active {
+      background: var(--accent);
+      color: #e5e7eb;
+    }
+
+    .tab:not(.active):hover {
+      background: #020617;
+      color: #d1d5db;
+    }
+
+    .section {
+      display: none;
+      margin-top: 6px;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    /* Forms & Inputs */
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 180px;
+      min-width: 140px;
+    }
+
+    .form-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .input,
+    .select,
+    .textarea {
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      padding: 7px 9px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      transition: border var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+    }
+
+    .input:focus,
+    .select:focus,
+    .textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.4);
+      background: #020617;
+    }
+
+    .textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .file-input {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Buttons */
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 13px;
+      border: 1px solid transparent;
+      background: var(--accent);
+      color: #e5e7eb;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), border var(--transition-fast);
+    }
+
+    .btn:hover {
+      background: var(--accent-soft);
+      transform: translateY(-0.5px);
+      box-shadow: 0 12px 18px rgba(15, 23, 42, 0.6);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--border-subtle);
+      color: var(--text-muted);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--accent);
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.8);
+      box-shadow: none;
+    }
+
+    .btn-danger {
+      background: rgba(190, 24, 93, 0.08);
+      border-color: rgba(248, 113, 113, 0.8);
+      color: #fecaca;
+    }
+
+    .btn-danger:hover {
+      background: rgba(248, 113, 113, 0.12);
+      border-color: #fca5a5;
+    }
+
+    /* Pills / chips */
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 11px;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      background: rgba(15, 23, 42, 0.8);
+      transition: background var(--transition-fast), border var(--transition-fast), color var(--transition-fast);
+    }
+
+    .pill input {
+      margin: 0;
+      width: 13px;
+      height: 13px;
+    }
+
+    .pill.active {
+      background: rgba(37, 99, 235, 0.2);
+      border-color: var(--accent);
+      color: #dbeafe;
+    }
+
+    /* Tables */
+
+    .table-wrap {
+      margin-top: 10px;
+      border-radius: var(--radius-lg);
+      border: 1px solid #111827;
+      overflow: hidden;
+      background: radial-gradient(circle at top left, #111827 0, #020617 55%, #000 100%);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead {
+      background: rgba(15, 23, 42, 0.96);
+    }
+
+    th,
+    td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+      text-align: left;
+      color: #d1d5db;
+      vertical-align: middle;
+    }
+
+    th {
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    tr:nth-child(even) td {
+      background: rgba(15, 23, 42, 0.7);
+    }
+
+    tr:nth-child(odd) td {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    tr:hover td {
+      background: rgba(30, 64, 175, 0.28);
+    }
+
+    .checkbox-cell,
+    .checkbox-header {
+      width: 34px;
+      text-align: center;
+    }
+
+    .checkbox-cell input,
+    .checkbox-header input {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .tag {
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      font-size: 10px;
+      color: #bfdbfe;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .badge-status {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .badge-status.sent {
+      background: rgba(34, 197, 94, 0.14);
+      color: #bbf7d0;
+      border: 1px solid rgba(34, 197, 94, 0.5);
+    }
+
+    .badge-status.failed {
+      background: rgba(248, 113, 113, 0.16);
+      color: #fecaca;
+      border: 1px solid rgba(248, 113, 113, 0.5);
+    }
+
+    .badge-status.scheduled {
+      background: rgba(37, 99, 235, 0.16);
+      color: #bfdbfe;
+      border: 1px solid rgba(37, 99, 235, 0.5);
+    }
+
+    .badge-status.processing {
+      background: rgba(234, 179, 8, 0.16);
+      color: #fef9c3;
+      border: 1px solid rgba(234, 179, 8, 0.5);
+    }
+
+    /* Helper text */
+
+    .hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    /* Responsive tweaks */
+
+    @media (max-width: 768px) {
+      .card {
+        padding: 14px 14px;
+      }
+      .top-bar {
+        padding: 10px 14px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      .page {
+        padding: 0 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="top-bar">
+    <div>
+      <div class="top-bar-title">HR Email Console</div>
+      <div class="top-bar-sub">Automated Email & Reminder Console</div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-target="section-recipients">Recipients</button>
+      <button class="tab" data-target="section-templates">Templates</button>
+      <button class="tab" data-target="section-send">Send / Schedule</button>
+      <button class="tab" data-target="section-jobs">Actions</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <!-- Recipients -->
+    <section id="section-recipients" class="section active">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            Recipients
+            <span class="card-title-pill">People</span>
+          </div>
+          <div class="card-sub">Add individually or upload from Excel / CSV (name, email, role)</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Name</label>
+            <input id="rec-name" class="input" placeholder="Jane Doe" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input id="rec-email" class="input" type="email" placeholder="jane.doe@example.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Role</label>
+            <input id="rec-role" class="input" placeholder="Intern 3 / Manager / Developer" />
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn" id="btn-add-recipient">+ Add Recipient</button>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid #111827; margin: 14px 0;" />
+
+        <div class="form-row">
+          <div class="form-group" style="flex: 2;">
+            <label class="form-label">Bulk upload (.csv / .xlsx)</label>
+            <input id="file-bulk" class="file-input" type="file" accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+            <div class="hint">Expected headers: <strong>name, email, role</strong></div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-ghost" id="btn-upload-bulk">Upload &amp; Merge</button>
+        </div>
+
+        <div class="table-wrap" id="recipients-table-wrap" style="margin-top:16px;">
+          <table>
+            <thead>
+              <tr>
+                <th class="checkbox-header"></th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Created</th>
+                <th style="width: 70px; text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recipients-tbody">
+              <!-- populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Templates -->
+    <section id="section-templates" class="section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            Templates
+            <span class="card-title-pill">Email Content</span>
+          </div>
+          <div class="card-sub">Subject + body (HTML supported)</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Template Name</label>
+            <input id="tpl-name" class="input" placeholder="Welcome Interns" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <input id="tpl-subject" class="input" placeholder="Welcome to the company!" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1 1 100%;">
+            <label class="form-label">Email Body</label>
+            <textarea id="tpl-body" class="textarea" placeholder="Dear Intern, welcome..."></textarea>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="btn-add-template">+ Save Template</button>
+        </div>
+
+        <div class="table-wrap" style="margin-top:16px;">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px;">ID</th>
+                <th>Name</th>
+                <th>Subject</th>
+                <th>Created</th>
+                <th style="width: 70px; text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="templates-tbody">
+              <!-- JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Send / Schedule -->
+    <section id="section-send" class="section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            Send / Schedule Email
+            <span class="card-title-pill">Delivery</span>
+          </div>
+          <div class="card-sub">Choose template, recipients / roles, and send now or schedule.</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Template</label>
+            <select id="send-template" class="select">
+              <option value="">Select a template...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Schedule at (optional)</label>
+            <input id="send-datetime" type="datetime-local" class="input" />
+            <div class="hint">Leave empty to send immediately.</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" style="flex:1 1 100%;">
+            <label class="form-label">Roles</label>
+            <div id="roles-pill-row" class="pill-row">
+              <!-- roles rendered here -->
+            </div>
+            <div class="hint">Check roles to target everyone in those roles.</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" style="flex:1 1 100%;">
+            <label class="form-label">Recipients</label>
+            <div class="btn-row" style="margin-bottom:6px;">
+              <label class="pill" id="pill-send-all">
+                <input type="checkbox" id="chk-send-all" />
+                <span>Send to everyone</span>
+              </label>
+              <span class="hint">If enabled, individual &amp; role selection is still allowed but not required.</span>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="checkbox-header">
+                      <input type="checkbox" id="chk-rec-all" />
+                    </th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                  </tr>
+                </thead>
+                <tbody id="send-recipients-tbody">
+                  <!-- recipients with checkboxes -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn" id="btn-send-now">Send Now</button>
+          <button class="btn btn-ghost" id="btn-schedule">Schedule</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Jobs -->
+    <section id="section-jobs" class="section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            Actions
+            <span class="card-title-pill">History</span>
+          </div>
+          <div class="card-sub">Past &amp; upcoming email Records.</div>
+        </div>
+
+        <div class="btn-row" style="margin-bottom:8px;">
+          <button class="btn btn-ghost" id="btn-refresh-jobs">Refresh</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 52px;">ID</th>
+                <th>Template</th>
+                <th>Status</th>
+                <th>Scheduled</th>
+                <th>Created</th>
+                <th>Last Error</th>
+              </tr>
+            </thead>
+            <tbody id="jobs-tbody">
+              <!-- JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = "http://localhost:8000";
+
+    // --- Helper ---
+
+    function formatDate(iso) {
+      if (!iso) return "";
+      try {
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return iso;
+        return d.toLocaleString();
+      } catch {
+        return iso;
+      }
+    }
+
+    function showToast(msg) {
+      alert(msg); // minimal; can be replaced with nicer toast later
+    }
+
+    // --- Tabs ---
+
+    document.querySelectorAll(".tab").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const target = btn.dataset.target;
+        document.querySelectorAll(".section").forEach(s => {
+          s.classList.toggle("active", s.id === target);
+        });
+      });
+    });
+
+    // --- Load data ---
+
+    async function fetchJSON(url, options = {}) {
+      const res = await fetch(url, options);
+      if (!res.ok) {
+        let msg = "Request failed";
+        try {
+          const data = await res.json();
+          msg = data.detail || JSON.stringify(data);
+        } catch {
+          msg = res.status + " " + res.statusText;
+        }
+        throw new Error(msg);
+      }
+      return res.json();
+    }
+
+    // Recipients
+
+    async function loadRecipients() {
+      try {
+        const data = await fetchJSON(`${API_BASE}/recipients`);
+        const tbody = document.getElementById("recipients-tbody");
+        const sendTbody = document.getElementById("send-recipients-tbody");
+        tbody.innerHTML = "";
+        sendTbody.innerHTML = "";
+
+        data.forEach(rec => {
+          // Recipients table
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="checkbox-cell">
+              <input type="checkbox" disabled />
+            </td>
+            <td>${rec.name}</td>
+            <td>${rec.email}</td>
+            <td>${rec.role || "-"}</td>
+            <td>${formatDate(rec.created_at)}</td>
+            <td style="text-align:right;">
+              <button class="btn btn-danger" style="padding:3px 8px;font-size:11px;" data-del-rec="${rec.id}">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+
+          // Send section table
+          const trSend = document.createElement("tr");
+          trSend.innerHTML = `
+            <td class="checkbox-cell">
+              <input type="checkbox" class="chk-recipient-send" data-rec-id="${rec.id}" />
+            </td>
+            <td>${rec.name}</td>
+            <td>${rec.email}</td>
+            <td>${rec.role || "-"}</td>
+          `;
+          sendTbody.appendChild(trSend);
+        });
+
+        // Attach delete handlers
+        tbody.querySelectorAll("[data-del-rec]").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            const id = btn.getAttribute("data-del-rec");
+            if (!confirm("Delete this recipient?")) return;
+            try {
+              await fetchJSON(`${API_BASE}/recipients/${id}`, { method: "DELETE" });
+              showToast("Recipient deleted");
+              loadRecipients();
+              loadRoles(); // roles may change
+            } catch (e) {
+              showToast(e.message);
+            }
+          });
+        });
+
+      } catch (e) {
+        console.error(e);
+        showToast(e.message);
+      }
+    }
+
+    // Templates
+
+    async function loadTemplates() {
+      try {
+        const data = await fetchJSON(`${API_BASE}/templates`);
+        const tbody = document.getElementById("templates-tbody");
+        const select = document.getElementById("send-template");
+        tbody.innerHTML = "";
+        select.innerHTML = '<option value="">Select a template...</option>';
+
+        data.forEach(tpl => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${tpl.id}</td>
+            <td>${tpl.name}</td>
+            <td>${tpl.subject}</td>
+            <td>${formatDate(tpl.created_at)}</td>
+            <td style="text-align:right;">
+              <button class="btn btn-danger" style="padding:3px 8px;font-size:11px;" data-del-tpl="${tpl.id}">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+
+          const opt = document.createElement("option");
+          opt.value = tpl.id;
+          opt.textContent = `${tpl.name} – ${tpl.subject}`;
+          select.appendChild(opt);
+        });
+
+        tbody.querySelectorAll("[data-del-tpl]").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            const id = btn.getAttribute("data-del-tpl");
+            if (!confirm("Delete this template?")) return;
+            try {
+              await fetchJSON(`${API_BASE}/templates/${id}`, { method: "DELETE" });
+              showToast("Template deleted");
+              loadTemplates();
+            } catch (e) {
+              showToast(e.message);
+            }
+          });
+        });
+
+      } catch (e) {
+        console.error(e);
+        showToast(e.message);
+      }
+    }
+
+    // Roles
+
+    async function loadRoles() {
+      try {
+        const roles = await fetchJSON(`${API_BASE}/roles`);
+        const row = document.getElementById("roles-pill-row");
+        row.innerHTML = "";
+        roles.forEach(role => {
+          const label = document.createElement("label");
+          label.className = "pill";
+          label.innerHTML = `
+            <input type="checkbox" class="chk-role" value="${role}" />
+            <span>${role}</span>
+          `;
+          row.appendChild(label);
+
+          const chk = label.querySelector("input");
+          chk.addEventListener("change", () => {
+            label.classList.toggle("active", chk.checked);
+          });
+        });
+      } catch (e) {
+        console.error(e);
+        // it's fine if no roles yet
+      }
+    }
+
+    // Jobs
+
+    async function loadJobs() {
+      try {
+        const jobs = await fetchJSON(`${API_BASE}/jobs`);
+        const tbody = document.getElementById("jobs-tbody");
+        tbody.innerHTML = "";
+        jobs.forEach(job => {
+          const tr = document.createElement("tr");
+          const status = job.status || "";
+          let cls = "";
+          if (status === "sent") cls = "sent";
+          else if (status === "failed") cls = "failed";
+          else if (status === "scheduled") cls = "scheduled";
+          else if (status === "processing") cls = "processing";
+
+          tr.innerHTML = `
+            <td>${job.id}</td>
+            <td>${job.template ? job.template.name : "-"}</td>
+            <td><span class="badge-status ${cls}">${status}</span></td>
+            <td>${formatDate(job.scheduled_at)}</td>
+            <td>${formatDate(job.created_at)}</td>
+            <td>${job.last_error || ""}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        console.error(e);
+        showToast(e.message);
+      }
+    }
+
+    // --- Actions ---
+
+    // Add recipient
+    document.getElementById("btn-add-recipient").addEventListener("click", async () => {
+      const name = document.getElementById("rec-name").value.trim();
+      const email = document.getElementById("rec-email").value.trim();
+      const role = document.getElementById("rec-role").value.trim() || null;
+
+      if (!name || !email) {
+        showToast("Name and email are required");
+        return;
+      }
+
+      try {
+        await fetchJSON(`${API_BASE}/recipients`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, role })
+        });
+        document.getElementById("rec-name").value = "";
+        document.getElementById("rec-email").value = "";
+        document.getElementById("rec-role").value = "";
+        showToast("Recipient added");
+        await loadRecipients();
+        await loadRoles();
+      } catch (e) {
+        showToast(e.message);
+      }
+    });
+
+    // Bulk upload
+    document.getElementById("btn-upload-bulk").addEventListener("click", async () => {
+      const fileInput = document.getElementById("file-bulk");
+      if (!fileInput.files || !fileInput.files[0]) {
+        showToast("Select a CSV or XLSX file first");
+        return;
+      }
+      const file = fileInput.files[0];
+      const form = new FormData();
+      form.append("file", file);
+      try {
+        await fetchJSON(`${API_BASE}/recipients/bulk_upload`, {
+          method: "POST",
+          body: form
+        });
+        fileInput.value = "";
+        showToast("Bulk upload complete");
+        await loadRecipients();
+        await loadRoles();
+      } catch (e) {
+        showToast(e.message);
+      }
+    });
+
+    // Add template
+    document.getElementById("btn-add-template").addEventListener("click", async () => {
+      const name = document.getElementById("tpl-name").value.trim();
+      const subject = document.getElementById("tpl-subject").value.trim();
+      const body = document.getElementById("tpl-body").value.trim();
+
+      if (!name || !subject || !body) {
+        showToast("Name, subject and body are required");
+        return;
+      }
+
+      try {
+        await fetchJSON(`${API_BASE}/templates`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, subject, body })
+        });
+        document.getElementById("tpl-name").value = "";
+        document.getElementById("tpl-subject").value = "";
+        document.getElementById("tpl-body").value = "";
+        showToast("Template saved");
+        await loadTemplates();
+      } catch (e) {
+        showToast(e.message);
+      }
+    });
+
+    // Select all recipients in send section
+    document.getElementById("chk-rec-all").addEventListener("change", (e) => {
+      const checked = e.target.checked;
+      document.querySelectorAll(".chk-recipient-send").forEach(chk => {
+        chk.checked = checked;
+      });
+    });
+
+    // Send to all pill styling
+    document.getElementById("chk-send-all").addEventListener("change", (e) => {
+      const pill = document.getElementById("pill-send-all");
+      pill.classList.toggle("active", e.target.checked);
+    });
+
+    async function createJob({ schedule }) {
+      const templateId = document.getElementById("send-template").value;
+      if (!templateId) {
+        showToast("Select a template first");
+        return;
+      }
+
+      const sendToAll = document.getElementById("chk-send-all").checked;
+
+      const recipientIds = Array.from(document.querySelectorAll(".chk-recipient-send"))
+        .filter(chk => chk.checked)
+        .map(chk => parseInt(chk.getAttribute("data-rec-id"), 10));
+
+      const roles = Array.from(document.querySelectorAll(".chk-role"))
+        .filter(chk => chk.checked)
+        .map(chk => chk.value);
+
+      if (!sendToAll && recipientIds.length === 0 && roles.length === 0) {
+        showToast("Select at least one recipient or role, or enable 'Send to everyone'");
+        return;
+      }
+
+      const payload = {
+        template_id: parseInt(templateId, 10),
+        recipient_ids: recipientIds,
+        roles: roles,
+        send_to_all: sendToAll,
+      };
+
+      if (schedule) {
+        const dt = document.getElementById("send-datetime").value;
+        if (!dt) {
+          showToast("Choose a date/time for scheduling");
+          return;
+        }
+        // Convert local datetime to ISO
+        const iso = new Date(dt).toISOString();
+        payload.scheduled_at = iso;
+      }
+
+      try {
+        await fetchJSON(`${API_BASE}/jobs`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (schedule) {
+          showToast("Job scheduled");
+        } else {
+          showToast("Job created (send now)");
+        }
+        document.getElementById("send-datetime").value = "";
+        document.getElementById("chk-rec-all").checked = false;
+        document.querySelectorAll(".chk-recipient-send").forEach(chk => chk.checked = false);
+        document.getElementById("chk-send-all").checked = false;
+        document.getElementById("pill-send-all").classList.remove("active");
+        document.querySelectorAll(".chk-role").forEach(chk => {
+          chk.checked = false;
+          chk.closest(".pill").classList.remove("active");
+        });
+        await loadJobs();
+      } catch (e) {
+        showToast(e.message);
+      }
+    }
+
+    document.getElementById("btn-send-now").addEventListener("click", () => {
+      createJob({ schedule: false });
+    });
+
+    document.getElementById("btn-schedule").addEventListener("click", () => {
+      createJob({ schedule: true });
+    });
+
+    document.getElementById("btn-refresh-jobs").addEventListener("click", loadJobs);
+
+    // Initial load
+    (async function init() {
+      await loadRecipients();
+      await loadTemplates();
+      await loadRoles();
+      await loadJobs();
+    })();
+  </script>
+</body>
+</html>
